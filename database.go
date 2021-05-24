@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"gorm.io/driver/sqlite"
+	"gorm.io/gorm/clause"
 
 	"gorm.io/gorm"
 )
@@ -24,7 +25,7 @@ func init() {
 	db.AutoMigrate(Device{}, DeviceActivity{})
 }
 func StoreRow(d *Device) {
-	DB.Create(&d)
+	DB.Clauses(clause.OnConflict{DoNothing: true}).Create(&d)
 }
 func LastActivity() *Device {
 	d := Device{}

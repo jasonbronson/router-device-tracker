@@ -75,8 +75,8 @@ func main() {
 	})
 
 	for _, d := range devices {
-		//spew.Dump(d)
 		log.Printf("%v %v %v %v\n", d.Name, d.IP, d.DeviceActivities[0].LastActivity.Format("01-02-2006"), d.Status)
+		StoreRow(&d)
 	}
 
 }
