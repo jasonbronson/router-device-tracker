@@ -12,7 +12,7 @@ import (
 
 func main() {
 
-	log.Println("teting")
+	log.Println("testing")
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	resp, err := http.Get("https://192.168.1.254/cgi-bin/devices.ha")
 	if err != nil {
@@ -29,7 +29,7 @@ func main() {
 	}
 
 	devices := make([]Device, 0)
-
+	deviceActivity := DeviceActivity{}
 	device := Device{}
 	doc.Find(".table100 tr").Each(func(i int, s *goquery.Selection) {
 
@@ -39,44 +39,44 @@ func main() {
 		detailFormatted := removeNewlines(detail)
 
 		if len(title) > 0 {
-			//log.Printf("%v %v \n", titleFormatted, detail)
+			//log.Printf("*** %v %v \n", titleFormatted, detail)
 
 			if title == "IPv4 Address / Name" {
 				nameIPv4 := strings.Split(detail, "/")
 				device.IP = removeNewlines(nameIPv4[0])
 				device.Name = removeNewlines(nameIPv4[1])
 			}
-
 			if title == "Name" {
 				device.Name = detailFormatted
 			}
-
 			if title == "MAC Address" {
 				device.MacAddress = detailFormatted
+				deviceActivity.MacAddress = detailFormatted
 			}
 			if title == "Status" {
 				device.Status = detailFormatted
 			}
-
-			if strings.Contains(title, "Last Activity") {
+			if title == "Last Activity" {
 				//Router format "Sat May 22 08:29:36 2021"
 				lastActivity, err := time.Parse("Mon Jan 2 15:04:05 2006", detailFormatted)
 				if err != nil {
 					log.Println(err)
 				}
-				device.LastActivity = lastActivity
+				deviceActivity.LastActivity = lastActivity
 			}
 			if titleFormatted == "Mesh Client" {
+				device.DeviceActivities = append(device.DeviceActivities, deviceActivity)
 				devices = append(devices, device)
 				device = Device{}
+				deviceActivity = DeviceActivity{}
 			}
 		}
 
 	})
 
 	for _, d := range devices {
-		
-		log.Printf("%v %v %v %v\n", d.Name, d.IP, d.LastActivity.Format("01-02-2006"), d.Status)
+		//spew.Dump(d)
+		log.Printf("%v %v %v %v\n", d.Name, d.IP, d.DeviceActivities[0].LastActivity.Format("01-02-2006"), d.Status)
 	}
 
 }
@@ -86,16 +86,4 @@ func removeSpaces(value string) string {
 }
 func removeNewlines(value string) string {
 	return strings.ReplaceAll(value, "\n", "")
-}
-
-type Devices struct {
-	Device []Device
-}
-
-type Device struct {
-	Name         string
-	LastActivity time.Time
-	Status       string
-	IP           string
-	MacAddress   string
 }
