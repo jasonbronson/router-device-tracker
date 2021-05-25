@@ -76,7 +76,9 @@ func main() {
 
 	for _, d := range devices {
 		log.Printf("%v %v %v %v\n", d.Name, d.IP, d.DeviceActivities[0].LastActivity.Format("01-02-2006"), d.Status)
-		StoreRow(&d)
+		if d.Status == "on" {
+			StoreRow(&d)
+		}
 	}
 
 }
