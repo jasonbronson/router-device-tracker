@@ -4,17 +4,23 @@ import (
 	"crypto/tls"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/joho/godotenv"
 )
 
 func main() {
 
-	log.Println("testing")
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
-	resp, err := http.Get("https://192.168.1.254/cgi-bin/devices.ha")
+	resp, err := http.Get(os.Getenv("ROUTER_ADDRESS"))
 	if err != nil {
 		log.Fatal(err)
 	}

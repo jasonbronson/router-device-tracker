@@ -48,8 +48,3 @@ type DeviceActivity struct {
 	MacAddress   string
 	LastActivity time.Time
 }
-
-// func (DeviceActivity *DeviceActivity) BeforeCreate(db *gorm.DB) error {
-// 	DeviceActivity.UUID = uuid.NewV4()
-// 	return nil
-// }
